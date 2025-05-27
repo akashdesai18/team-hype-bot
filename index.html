@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Hype Bot</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        input, button { padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background: #007cba; color: white; cursor: pointer; }
+        .result { margin-top: 20px; padding: 15px; background: #f0f8ff; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Team Hype Bot</h1>
+    <form id="hypeForm">
+        <div>
+            <input type="text" id="word1" placeholder="First word (e.g., deadline)" required>
+            <input type="text" id="word2" placeholder="Second word (e.g., crushing)" required>
+            <input type="text" id="word3" placeholder="Third word (e.g., victory)" required>
+        </div>
+        <button type="submit">Generate Hype Message! 🎉</button>
+    </form>
+    
+    <div id="result" class="result" style="display: none;"></div>
+
+    <script>
+        document.getElementById('hypeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const word1 = document.getElementById('word1').value;
+            const word2 = document.getElementById('word2').value;
+            const word3 = document.getElementById('word3').value;
+            
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = 'Generating hype... 🔥';
+            
+            try {
+                const response = await fetch('/generate-hype', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ word1, word2, word3 })
+                });
+                
+                const data = await response.json();
+                resultDiv.innerHTML = `<strong>Your Hype Message:</strong><br>${data.message}`;
+            } catch (error) {
+                resultDiv.innerHTML = 'Oops! Something went wrong. Try again.';
+            }
+        });
+    </script>
+</body>
+</html>
