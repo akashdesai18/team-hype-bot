@@ -100,9 +100,20 @@
         .slack-btn {
             background: linear-gradient(45deg, #4CAF50, #45a049);
             color: white;
+            margin-bottom: 10px;
         }
 
         .slack-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .test-btn {
+            background: linear-gradient(45deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .test-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
@@ -174,6 +185,10 @@
             <h3>🎯 Send to Slack</h3>
             <input type="text" id="slackChannel" placeholder="Enter Slack channel (e.g., #general)" style="width: 100%; margin-bottom: 15px;">
             <button class="slack-btn" onclick="sendToSlack()">Send to Slack! 💬</button>
+            
+            <h3>🕘 Daily Automation</h3>
+            <p style="margin: 10px 0; opacity: 0.9;">Your bot automatically sends daily hype messages Monday-Friday at 9:00 AM ET to your configured channel.</p>
+            <button class="test-btn" onclick="testDailyHype()">Test Daily Hype Now! 🧪</button>
         </div>
 
         <div class="loading" id="loading">
@@ -251,6 +266,29 @@
                 }
             } catch (error) {
                 showResult('Failed to send to Slack. Please try again!', 'error');
+            }
+        }
+
+        async function testDailyHype() {
+            showLoading();
+            
+            try {
+                const response = await fetch('/test-daily-hype', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ channel: '#general' }) // Change this to your preferred channel
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    showResult(`✅ Daily hype test sent!\n\nChannel: ${data.channel}\nWords used: ${data.words.word1}, ${data.words.word2}, ${data.words.word3}\n\nMessage: ${data.hype}`, 'success');
+                } else {
+                    showResult(`❌ ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showResult('Failed to test daily hype. Please try again!', 'error');
             }
         }
 
