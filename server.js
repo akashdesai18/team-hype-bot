@@ -42,6 +42,48 @@ app.post('/generate-hype', async (req, res) => {
     }
 });
 
+// Add Slack route
+app.post('/slack/send', async (req, res) => {
+    try {
+        const { channel, word1, word2, word3 } = req.body;
+        
+        // Generate hype message
+        const response = await axios.post('https://api.anthropic.com/v1/messages', {
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 150,
+            messages: [{
+                role: 'user',
+                content: `Create an energetic, motivational team message that incorporates these three words: "${word1}", "${word2}", and "${word3}". Make it 2-3 sentences, upbeat, and perfect for a team Slack channel. Include emojis.`
+            }]
+        }, {
+            headers: {
+                'Content-Type': 'application/json',
+                'x-api-key': process.env.ANTHROPIC_API_KEY,
+                'anthropic-version': '2023-06-01'
+            }
+        });
+
+        const hypeMessage = response.data.content[0].text;
+        
+        // Send to Slack
+        await axios.post('https://slack.com/api/chat.postMessage', {
+            channel: channel,
+            text: hypeMessage
+        }, {
+            headers: {
+                'Authorization': `Bearer ${process.env.SLACK_BOT_TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        res.json({ message: 'Hype message sent to Slack!', hype: hypeMessage });
+        
+    } catch (error) {
+        console.log('Slack error:', error.response?.data || error.message);
+        res.status(500).json({ error: 'Failed to send to Slack' });
+    }
+});
+
 app.use(express.static('.'));
 
 app.listen(PORT, () => {
